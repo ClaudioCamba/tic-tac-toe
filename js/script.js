@@ -9,26 +9,52 @@
 // When player click symbol added to clicked square
 // Symbol updated on to board game array
 // Game control checks to see if player won
+// Function to clear grids / Restart
 
+// Players ====================================================================
+const playerFactory = (name, mark) => {
+    let countTurns = 0;
+    const getMark = () => mark;
+    const getName = () => name;
+    const getCount = () => countTurns;
+    const takeTurn = () => countTurns++;
+    return { getName, getMark, getCount, takeTurn }
+};
+
+const player1 = playerFactory('max', 'X');
+const player2 = playerFactory('dom', 'O');
+
+// Board ====================================================================
 const gameBoard = (function () {
-
     const _board = ['', '', '', '', '', '', '', '', ''],
-        _body = document.querySelector('body'),
-        _gridWrap = document.createElement('ul');
-    
-    test: 'this';
-    when: 'that';
-    
-    function renderBoard() {
+        _body = document.querySelector('body');
+
+    const _buildBoard = () => {
+        const wrap = document.createElement('ul');
         for (let i = 0; i < _board.length; i++) {
             let grid = document.createElement('li');
             grid.innerText = _board[i];
-            // grid.addEventListener('click', () => {
-            //     console.log('grid: '+i);
-            // });
-            _gridWrap.appendChild(grid);
+            // grid.setAttribute('data-index', i);
+            grid.addEventListener('click', (e) => {
+                console.log(_board[e.target.dataset.index]);
+                console.log(e)
+                console.log(player1.getMark());
+                if (player1.getCount() <= player2.getCount()) {
+                    e.target.innerText = player1.getMark();
+                    player1.takeTurn();
+                } else {
+                    e.target.innerText = player2.getMark();
+                    player2.takeTurn();
+                }
+                
+            });
+            wrap.appendChild(grid);
         }
-        _body.appendChild(_gridWrap);
+        return wrap;
+    };
+
+    function renderBoard() {
+        _body.appendChild(_buildBoard());
     }
 
     return {
@@ -36,42 +62,19 @@ const gameBoard = (function () {
     };
 })();
 
-gameBoard.renderBoard(); // Render gameboard
+gameBoard.renderBoard(); // Render
 
-// displayController
-
-
-
-
+// Controls ====================================================================
+// const displayController = (function () {
+    
 
 
+//     return {};
+// })();
 
 
 
-// const player1 = {
 
-// }
 
-// const player2 = {
 
-// }
-// const Person = function(name, age) {
-//     this.sayHello = () => console.log('hello!');
-//     this.name = name;
-//     this.age = age;
-//   };
-  
-// const jeff = new Person('jeff', 27);
-  
-
-// const personFactory = (name, age) => {
-//     const sayHello = () => console.log('hello!');
-//     return { name, age, sayHello };
-//   };
-  
-//   const jeff = personFactory('jeff', 27);
-  
-//   console.log(jeff.name); // 'jeff'
-  
-//   jeff.sayHello(); // calls the function and logs 'hello!'
 
