@@ -14,15 +14,26 @@
 // Players ====================================================================
 const playerFactory = (name, mark) => {
     let countTurns = 0;
+    let clickedGrid = [];
     const getMark = () => mark;
     const getName = () => name;
     const getCount = () => countTurns;
-    const takeTurn = () => countTurns++;
+    // const takeTurn = (grid) => clickedGrid[];
     return { getName, getMark, getCount, takeTurn }
 };
 
 const player1 = playerFactory('max', 'X');
 const player2 = playerFactory('dom', 'O');
+
+const playerTurns = () => {
+    let player;
+    if (player1.getCount() <= player2.getCount()) {
+        return player = player1
+    } else {
+        return player = player2;
+    }
+}
+
 
 // Board ====================================================================
 const gameBoard = (function () {
@@ -36,16 +47,12 @@ const gameBoard = (function () {
             grid.innerText = _board[i];
             // grid.setAttribute('data-index', i);
             grid.addEventListener('click', (e) => {
-                console.log(_board[e.target.dataset.index]);
+                // console.log(_board[e.target.dataset.index]);
                 console.log(e)
-                console.log(player1.getMark());
-                if (player1.getCount() <= player2.getCount()) {
-                    e.target.innerText = player1.getMark();
-                    player1.takeTurn();
-                } else {
-                    e.target.innerText = player2.getMark();
-                    player2.takeTurn();
-                }
+                e.target.innerText = playerTurns().getMark();
+                _board[i] = playerTurns().getMark();
+
+                console.log(_board);
                 
             });
             wrap.appendChild(grid);
