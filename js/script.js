@@ -1,11 +1,11 @@
 "use strict";
 
-// Build board game and render function using module
+// Build board game and render function using module //
 // Build control function using module approach
-// Build players using factory function approach
+// Build players using factory function approach //
 
-// Board game render on page
-// Player given name
+// Board game render on page //
+// Player given name 
 // When player click symbol added to clicked square
 // Symbol updated on to board game array
 // Game control checks to see if player won
@@ -13,26 +13,18 @@
 
 // Players ====================================================================
 const playerFactory = (name, mark) => {
-    let countTurns = 0;
+    // let countTurns = 0;
     let clickedGrid = [];
     const getMark = () => mark;
     const getName = () => name;
-    const getCount = () => countTurns;
-    // const takeTurn = (grid) => clickedGrid[];
+    const getCount = () => clickedGrid;
+    const takeTurn = (grd) => clickedGrid.push(grd);
     return { getName, getMark, getCount, takeTurn }
 };
 
 const player1 = playerFactory('max', 'X');
 const player2 = playerFactory('dom', 'O');
-
-const playerTurns = () => {
-    let player;
-    if (player1.getCount() <= player2.getCount()) {
-        return player = player1
-    } else {
-        return player = player2;
-    }
-}
+const playerTurns = () => player1.getCount().length <= player2.getCount().length ? player1 : player2; // Controls players turn
 
 
 // Board ====================================================================
@@ -45,16 +37,21 @@ const gameBoard = (function () {
         for (let i = 0; i < _board.length; i++) {
             let grid = document.createElement('li');
             grid.innerText = _board[i];
-            // grid.setAttribute('data-index', i);
-            grid.addEventListener('click', (e) => {
-                // console.log(_board[e.target.dataset.index]);
-                console.log(e)
-                e.target.innerText = playerTurns().getMark();
-                _board[i] = playerTurns().getMark();
 
-                console.log(_board);
-                
+            // Click eventlistner on individual grids
+            grid.addEventListener('click', (e) => {
+                if (_board.includes('')) { // Check to make sure board has empty spaces
+                    let playa = playerTurns();
+
+                    if (e.target.innerText === '') {
+                        _board[i] = playa.getMark();
+                        e.target.innerText = _board[i];
+                        playa.getCount().push(i);
+                        displayController.checkGame(playa, _board);
+                    }
+                }
             });
+
             wrap.appendChild(grid);
         }
         return wrap;
@@ -72,12 +69,30 @@ const gameBoard = (function () {
 gameBoard.renderBoard(); // Render
 
 // Controls ====================================================================
-// const displayController = (function () {
-    
+const displayController = (function () {
+
+    const checkGame = (ply, brd) => {
+        const winIndex = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+        // Check if win
+        // if (ply.getCount().length >= 3) {
+        for (let numbers of winIndex) {
+            if (ply.getCount().includes(numbers[0]) && ply.getCount().includes(numbers[1]) && ply.getCount().includes(numbers[2])) {
+                console.log(ply.getName() + ' WINNER')
+                break;
+            } else {
+                console.log('no match');
+            }
+        }
+    }
 
 
-//     return {};
-// })();
+    // if an player reaches 3+ check
+    // if board grids are full check
+
+
+    return { checkGame };
+})();
+
 
 
 
