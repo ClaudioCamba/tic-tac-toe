@@ -1,36 +1,33 @@
 "use strict";
 
 // Build board game and render function using module //
-// Build control function using module approach
+// Build control function using module approach //
 // Build players using factory function approach //
 
 // Board game render on page //
-// Player given name 
-// When player click symbol added to clicked square
+// Player given name - in the dom
+// When player click symbol added to clicked square //
 // Symbol updated on to board game array
 // Game control checks to see if player won
 // Function to clear grids / Restart
 
 // Players ====================================================================
 const playerFactory = (name, mark) => {
-    // let countTurns = 0;
     let clickedGrid = [];
     const getMark = () => mark;
     const getName = () => name;
     const getCount = () => clickedGrid;
-    const takeTurn = (grd) => clickedGrid.push(grd);
-    return { getName, getMark, getCount, takeTurn }
+    return { getName, getMark, getCount }
 };
 
 const player1 = playerFactory('max', 'X');
 const player2 = playerFactory('dom', 'O');
 const playerTurns = () => player1.getCount().length <= player2.getCount().length ? player1 : player2; // Controls players turn
 
-
 // Board ====================================================================
 const gameBoard = (function () {
-    const _board = ['', '', '', '', '', '', '', '', ''],
-        _body = document.querySelector('body');
+    const _board = ['', '', '', '', '', '', '', '', ''];
+    const _body = document.querySelector('body');
 
     const _buildBoard = () => {
         const wrap = document.createElement('ul');
@@ -40,9 +37,9 @@ const gameBoard = (function () {
             // Click eventlistner on individual grids
             grid.addEventListener('click', (e) => {
 
-                displayController.getData(_board, e, i); // Send data to game controller
-                displayController.updateBoard(); // Update game board and player
-                displayController.gameStatus();
+                gameControl.getData(_board, e, i); // Send data to game controller
+                gameControl.updateBoard(); // Update game board and player
+                gameControl.gameStatus(); // Check for win / tie or turn 
 
             });
 
@@ -60,10 +57,8 @@ const gameBoard = (function () {
     };
 })();
 
-gameBoard.renderBoard(); // Render
-
 // Controls ====================================================================
-const displayController = (function () {
+const gameControl = (function () {
 
     let _data = {
         board: null,
@@ -80,7 +75,6 @@ const displayController = (function () {
         _data.elem = e;
         _data.index = i;
         _data.player = playerTurns();
-        console.log(_data);
     }
 
     // Update game board
@@ -94,18 +88,23 @@ const displayController = (function () {
 
     // Check game status
     const gameStatus = () => {
-        // If win
-        for (let numbers of _data.winNum) {
-            if (_data.player.getCount().includes(numbers[0]) && _data.player.getCount().includes(numbers[1]) && _data.player.getCount().includes(numbers[2])) {
-                console.log(_data.player.getName() + ' WINNER')
-                break;
-            } else if (!_data.board.includes('')) {
+        // Check win
+        const checkWin = (arr) => {
+            for (let num of _data.winNum) {
+                if (arr.includes(num[0]) && arr.includes(num[1]) && arr.includes(num[2])) { return _data.player; }
+            }
+        };
+
+        // Check tie / turn
+        if (checkWin(_data.player.getCount()) != undefined) {
+            console.log(_data.player.getName() + ' winner')
+        } else {
+            if (_data.board.includes('') === false) {
                 console.log('draw');
-                break;
             } else {
                 console.log(playerTurns().getName() + ' its your turn')
             }
-        }
+        };
     }
 
     return {
@@ -115,9 +114,7 @@ const displayController = (function () {
     };
 })();
 
-
-
-
+gameBoard.renderBoard(); // Render
 
 
 
