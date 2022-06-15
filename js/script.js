@@ -37,19 +37,13 @@ const gameBoard = (function () {
         for (let i = 0; i < _board.length; i++) {
             let grid = document.createElement('li');
             grid.innerText = _board[i];
-
             // Click eventlistner on individual grids
             grid.addEventListener('click', (e) => {
-                if (_board.includes('')) { // Check to make sure board has empty spaces
-                    let playa = playerTurns();
 
-                    if (e.target.innerText === '') {
-                        _board[i] = playa.getMark();
-                        e.target.innerText = _board[i];
-                        playa.getCount().push(i);
-                        displayController.checkGame(playa, _board);
-                    }
-                }
+                displayController.getData(_board, e, i); // Send data to game controller
+                displayController.updateBoard(); // Update game board and player
+                displayController.gameStatus();
+
             });
 
             wrap.appendChild(grid);
@@ -71,26 +65,54 @@ gameBoard.renderBoard(); // Render
 // Controls ====================================================================
 const displayController = (function () {
 
-    const checkGame = (ply, brd) => {
-        const winIndex = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-        // Check if win
-        // if (ply.getCount().length >= 3) {
-        for (let numbers of winIndex) {
-            if (ply.getCount().includes(numbers[0]) && ply.getCount().includes(numbers[1]) && ply.getCount().includes(numbers[2])) {
-                console.log(ply.getName() + ' WINNER')
+    let _data = {
+        board: null,
+        elem: null,
+        index: null,
+        player: null,
+        winner: null,
+        winNum: [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+    }
+
+    // Get data and store
+    const getData = (b, e, i) => {
+        _data.board = b;
+        _data.elem = e;
+        _data.index = i;
+        _data.player = playerTurns();
+        console.log(_data);
+    }
+
+    // Update game board
+    const updateBoard = () => {
+        if (_data.elem.target.innerText === '' && _data.board[_data.index].length === 0) {
+            _data.board[_data.index] = _data.player.getMark();
+            _data.elem.target.innerText = _data.board[_data.index];
+            _data.player.getCount().push(_data.index);
+        }
+    };
+
+    // Check game status
+    const gameStatus = () => {
+        // If win
+        for (let numbers of _data.winNum) {
+            if (_data.player.getCount().includes(numbers[0]) && _data.player.getCount().includes(numbers[1]) && _data.player.getCount().includes(numbers[2])) {
+                console.log(_data.player.getName() + ' WINNER')
+                break;
+            } else if (!_data.board.includes('')) {
+                console.log('draw');
                 break;
             } else {
-                console.log('no match');
+                console.log(playerTurns().getName() + ' its your turn')
             }
         }
     }
 
-
-    // if an player reaches 3+ check
-    // if board grids are full check
-
-
-    return { checkGame };
+    return {
+        getData,
+        updateBoard,
+        gameStatus
+    };
 })();
 
 
