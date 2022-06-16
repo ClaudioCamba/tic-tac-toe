@@ -24,10 +24,54 @@ const player1 = playerFactory('max', 'X');
 const player2 = playerFactory('dom', 'O');
 const playerTurns = () => player1.getCount().length <= player2.getCount().length ? player1 : player2; // Controls players turn
 
+const userInterface = (() => {
+
+    const _inputSection = () => {
+        const domDiv = document.createElement('div'); // Create wrapper
+        const title = document.createElement('h1'); // Main title
+        const subTitle = document.createElement('h3'); // Main title
+        const restartBtn = document.createElement('button'); // Restart button
+
+        title.innerText = 'Tic Tac Toe';
+        subTitle.innerText = 'Enter names and click start button';
+        restartBtn.innerText = 'Start';
+
+        domDiv.appendChild(title);
+        domDiv.appendChild(subTitle);
+        domDiv.appendChild(restartBtn);
+
+        // Create input elements
+        for (let u = 1; u < 3; u++) {
+            const label = document.createElement('label');
+            const input = document.createElement('input');
+            label.setAttribute('for', 'player' + u);
+            label.innerText = 'player' + u;
+            input.type = 'text';
+            input.placeholder = 'Enter Player' + u + ' Name'
+            input.id = 'player' + u;
+            label.appendChild(input);
+            domDiv.appendChild(label);
+        }
+
+        return domDiv;
+    }
+
+    function renderInputSection() {
+        document.querySelector('body').appendChild(_inputSection())
+    }
+
+    // const reStartBtn = () => {
+    //     document.createElement('button');
+    // }
+
+    return { renderInputSection }
+})();
+
+
 // Board ====================================================================
 const gameBoard = (function () {
     const _board = ['', '', '', '', '', '', '', '', ''];
-    const _body = document.querySelector('body');
+    // const _body = document.querySelector('body');
     const _endGame = [];
 
 
@@ -53,7 +97,7 @@ const gameBoard = (function () {
     };
 
     function renderBoard() {
-        _body.appendChild(_buildBoard());
+        document.querySelector('body').appendChild(_buildBoard());
     }
 
     return {
@@ -122,6 +166,7 @@ const gameControl = (function () {
     };
 })();
 
+userInterface.renderInputSection();
 gameBoard.renderBoard(); // Render
 
 

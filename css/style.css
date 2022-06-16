@@ -138,16 +138,32 @@ html body * {
 /* Main Styling */
 :root {
   font-size: 16px;
-  --grid-size: 150px;
+
+  /* Variables */
+  --px-25: 25px;
+  --px-50: 50px;
+  --px-75: 75px;
+  --px-100: 100px;
+  --px-150: 150px;
 }
 
+/* Input Section */
+h1 {
+  font-size: var(--px-75);
+}
+
+h3 {
+  font-size: var(--px-25);
+}
+
+/* Grid Styling */
 ul {
   margin: 0 auto;
-  margin-top: 150px;
+  margin-top: 50px;
   width: fit-content;
   display: grid;
-  grid-template-columns: repeat(3, var(--grid-size));
-  grid-template-rows: repeat(3, var(--grid-size));
+  grid-template-columns: repeat(3, var(--px-150));
+  grid-template-rows: repeat(3, var(--px-150));
   gap: 1px;
   border: 1px solid #000000;
   background-color: #000000;
