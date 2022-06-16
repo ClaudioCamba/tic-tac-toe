@@ -28,19 +28,23 @@ const playerTurns = () => player1.getCount().length <= player2.getCount().length
 const gameBoard = (function () {
     const _board = ['', '', '', '', '', '', '', '', ''];
     const _body = document.querySelector('body');
+    const _endGame = [];
+
 
     const _buildBoard = () => {
         const wrap = document.createElement('ul');
         for (let i = 0; i < _board.length; i++) {
             let grid = document.createElement('li');
             grid.innerText = _board[i];
+
             // Click eventlistner on individual grids
             grid.addEventListener('click', (e) => {
-
-                gameControl.getData(_board, e, i); // Send data to game controller
-                gameControl.updateBoard(); // Update game board and player
-                gameControl.gameStatus(); // Check for win / tie or turn 
-
+                if (_endGame.includes(true) === false) {
+                    gameControl.getData(_board, e, i, _endGame); // Send data to game controller
+                    gameControl.updateBoard(); // Update game board and player
+                    gameControl.gameStatus(); // Check for win / tie or turn 
+                    console.log(_board);
+                }
             });
 
             wrap.appendChild(grid);
@@ -66,14 +70,16 @@ const gameControl = (function () {
         index: null,
         player: null,
         winner: null,
+        endGame: null,
         winNum: [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     }
 
     // Get data and store
-    const getData = (b, e, i) => {
+    const getData = (b, e, i, g) => {
         _data.board = b;
         _data.elem = e;
         _data.index = i;
+        _data.endGame = g;
         _data.player = playerTurns();
     }
 
@@ -97,10 +103,12 @@ const gameControl = (function () {
 
         // Check tie / turn
         if (checkWin(_data.player.getCount()) != undefined) {
-            console.log(_data.player.getName() + ' winner')
+            console.log(_data.player.getName() + ' winner');
+            _data.endGame.push(true);
         } else {
             if (_data.board.includes('') === false) {
                 console.log('draw');
+                _data.endGame.push(true);
             } else {
                 console.log(playerTurns().getName() + ' its your turn')
             }
