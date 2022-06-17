@@ -14,23 +14,28 @@
 // Players ====================================================================
 const playerFactory = (name, mark) => {
     let clickedGrid = [];
+    const winMsg = () => name + ' wins!';
+    const startMsg = () => name + ' starts first';
+    const turnMsg = () => name + ' its your turn';
     const getMark = () => mark;
     const getName = () => name;
     const getCount = () => clickedGrid;
-    return { getName, getMark, getCount }
+    return { getName, getMark, getCount, winMsg, turnMsg, startMsg }
 };
 
-const player1 = playerFactory('max', 'X');
-const player2 = playerFactory('dom', 'O');
+let player1, player2;
 const playerTurns = () => player1.getCount().length <= player2.getCount().length ? player1 : player2; // Controls players turn
 
 const userInterface = (() => {
+    const domDiv = document.createElement('div'); // Create wrapper
+    const title = document.createElement('h1'); // Main title
+    const subTitle = document.createElement('h3'); // Main title
+    const restartBtn = document.createElement('button'); // Restart button
+    let input1 = null;
+    let input2 = null;
 
+    // Construct input section
     const _inputSection = () => {
-        const domDiv = document.createElement('div'); // Create wrapper
-        const title = document.createElement('h1'); // Main title
-        const subTitle = document.createElement('h3'); // Main title
-        const restartBtn = document.createElement('button'); // Restart button
 
         title.innerText = 'Tic Tac Toe';
         subTitle.innerText = 'Enter names and click start button';
@@ -45,26 +50,44 @@ const userInterface = (() => {
             const label = document.createElement('label');
             const input = document.createElement('input');
             label.setAttribute('for', 'player' + u);
-            label.innerText = 'player' + u;
+            label.innerText = 'Player ' + u;
             input.type = 'text';
-            input.placeholder = 'Enter Player' + u + ' Name'
+            input.placeholder = 'Enter Player ' + u + ' Name'
             input.id = 'player' + u;
             label.appendChild(input);
             domDiv.appendChild(label);
+
+            u === 1 ? input1 = input : input2 = input;
         }
+
+        // Add functionality to start button
+        restartBtn.addEventListener('click', (e) => {
+            if (input1.value && input2.value) {
+                if (input1.value != input2.value) {
+                    e.target.innerText = 'Restart';
+                    player1 = playerFactory(input1.value, 'X');
+                    player2 = playerFactory(input2.value, 'O');
+                    input1.value = '';
+                    input2.value = '';
+
+                    subTitle.innerText = playerTurns().startMsg();
+                    gameBoard.boardOpenClose(true);
+                } else {
+                    console.log('cant have the same name');
+                }
+
+            } else {
+                console.log('I need names')
+            }
+        });
 
         return domDiv;
     }
 
-    function renderInputSection() {
-        document.querySelector('body').appendChild(_inputSection())
-    }
+    const renderInputSection = () => { document.querySelector('body').appendChild(_inputSection()) };
+    const updateMessage = (txt) => { subTitle.innerText = txt };
 
-    // const reStartBtn = () => {
-    //     document.createElement('button');
-    // }
-
-    return { renderInputSection }
+    return { renderInputSection, updateMessage }
 })();
 
 
@@ -72,8 +95,7 @@ const userInterface = (() => {
 const gameBoard = (function () {
     const _board = ['', '', '', '', '', '', '', '', ''];
     // const _body = document.querySelector('body');
-    const _endGame = [];
-
+    const _openBoard = [false];
 
     const _buildBoard = () => {
         const wrap = document.createElement('ul');
@@ -83,11 +105,13 @@ const gameBoard = (function () {
 
             // Click eventlistner on individual grids
             grid.addEventListener('click', (e) => {
-                if (_endGame.includes(true) === false) {
-                    gameControl.getData(_board, e, i, _endGame); // Send data to game controller
+                if (_openBoard.includes(true)) {
+                    gameControl.getData(_board, e, i, _openBoard); // Send data to game controller
                     gameControl.updateBoard(); // Update game board and player
                     gameControl.gameStatus(); // Check for win / tie or turn 
                     console.log(_board);
+                } else {
+                    console.log('enter names please')
                 }
             });
 
@@ -96,12 +120,12 @@ const gameBoard = (function () {
         return wrap;
     };
 
-    function renderBoard() {
-        document.querySelector('body').appendChild(_buildBoard());
-    }
+    function renderBoard() { document.querySelector('body').appendChild(_buildBoard()) }
+    function boardOpenClose(tf) { _openBoard.splice(0, 1, tf) }
 
     return {
-        renderBoard
+        renderBoard,
+        boardOpenClose
     };
 })();
 
@@ -115,6 +139,8 @@ const gameControl = (function () {
         player: null,
         winner: null,
         endGame: null,
+        // subtitle: document.querySelector('div > h3'),
+        // startButton: document.querySelector('div > button'),
         winNum: [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     }
 
@@ -148,16 +174,19 @@ const gameControl = (function () {
         // Check tie / turn
         if (checkWin(_data.player.getCount()) != undefined) {
             console.log(_data.player.getName() + ' winner');
-            _data.endGame.push(true);
+            gameBoard.boardOpenClose(false);
         } else {
             if (_data.board.includes('') === false) {
                 console.log('draw');
-                _data.endGame.push(true);
+                gameBoard.boardOpenClose(false);
             } else {
                 console.log(playerTurns().getName() + ' its your turn')
+                userInterface.updateMessage(playerTurns().turnMsg());
             }
         };
     }
+
+
 
     return {
         getData,
@@ -166,9 +195,11 @@ const gameControl = (function () {
     };
 })();
 
-userInterface.renderInputSection();
-gameBoard.renderBoard(); // Render
+userInterface.renderInputSection(); // Render input section
+gameBoard.renderBoard(); // Render game board
 
+document.querySelector('#player1').value = 'claudio';
+document.querySelector('#player2').value = 'mina';
 
 
 
