@@ -112,8 +112,9 @@ const gameBoard = (function () {
                     gameControl.gameStatus(); // Check for win / tie or turn 
                     console.log(_board);
                 } else {
-                    userInterface.updateMessage('Enter names & click Start / Restart');
-                    resetBoard();
+                    document.querySelector('body > div > button').click();
+                    // userInterface.updateMessage('Enter names & click Start / Restart');
+                    // resetBoard();
                 }
             });
 
@@ -125,14 +126,14 @@ const gameBoard = (function () {
     function renderBoard() { document.querySelector('body').appendChild(_buildBoard()) }
     function boardOpenClose(trueFalse) { _openBoard.splice(0, 1, trueFalse) };
     function resetBoard() {
-        if (_board.includes('O') || _board.includes('X')) {
-            _board = ['', '', '', '', '', '', '', '', '']; // Reset board
-            wrap.innerHTML = ''; // Delete all child nodes / li
-            wrap.remove(); // Remove DOM element
-            renderBoard(); // Re-insert DOM element
-        } else {
-            renderBoard();
-        }
+        // if (_board.includes('O') || _board.includes('X')) {
+        _board = ['', '', '', '', '', '', '', '', '']; // Reset board
+        wrap.innerHTML = ''; // Delete all child nodes / li
+        wrap.remove(); // Remove DOM element
+        renderBoard(); // Re-insert DOM element
+        // } else {
+        //     renderBoard();
+        // }
     }
 
     return {
