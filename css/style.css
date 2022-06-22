@@ -174,23 +174,24 @@ form {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, auto);
+  gap: var(--px-25);
   grid-area: 3 / 1 / 4 / 4;
 }
 
-/* div > button {
-  grid-area: 4 / 2 / 5 / 3;
+form > button {
+  grid-area: 2 / 2 / 3 / 3;
 }
 
 label[for="playerO"] {
-  grid-area: 3 / 3 / 4 / 4;
+  grid-area: 1 / 3 / 2 / 4;
 }
 
 label[for="playerX"] {
-  grid-area: 3 / 1 / 4 / 2;
-} */
+  grid-area: 1 / 1 / 2 / 2;
+}
 
 label > input,
-div > label {
+form > label {
   display: block;
   text-align: center;
   width: 100%;
