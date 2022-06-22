@@ -174,11 +174,11 @@ div > button {
   grid-area: 4 / 2 / 5 / 3;
 }
 
-label[for="player2"] {
+label[for="playerO"] {
   grid-area: 3 / 3 / 4 / 4;
 }
 
-label[for="player1"] {
+label[for="playerX"] {
   grid-area: 3 / 1 / 4 / 2;
 }
 
