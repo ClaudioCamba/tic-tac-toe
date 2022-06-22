@@ -12,7 +12,6 @@
 // Function to clear grids / Restart
 // Cleanup restart
 // automatically restart game when new names entered
-// 
 
 // Players ====================================================================
 const playerFactory = (name, mark) => {
@@ -34,6 +33,9 @@ const userInterface = (() => {
     const title = document.createElement('h1'); // Main title
     const subTitle = document.createElement('h3'); // Main title
     const restartBtn = document.createElement('button'); // Restart button
+    restartBtn.type = 'submit';
+    const formElem = document.createElement('form'); // Form wrap
+
     let input1 = null;
     let input2 = null;
 
@@ -46,22 +48,22 @@ const userInterface = (() => {
 
         domDiv.appendChild(title);
         domDiv.appendChild(subTitle);
-        domDiv.appendChild(restartBtn);
+        formElem.appendChild(restartBtn);
+        domDiv.appendChild(formElem);
 
         // Create input elements
         for (let u = 1; u < 3; u++) {
             const s = () => u === 1 ? 'X' : 'O';
-
             const label = document.createElement('label');
             const input = document.createElement('input');
             label.setAttribute('for', 'player' + s());
             label.innerText = 'Player ' + s();
             input.type = 'text';
+            input.required = true;
             input.placeholder = 'Enter Player ' + s() + ' Name'
             input.id = 'player' + s();
             label.appendChild(input);
-            domDiv.appendChild(label);
-
+            formElem.appendChild(label);
             u === 1 ? input1 = input : input2 = input;
         }
 
@@ -69,17 +71,16 @@ const userInterface = (() => {
         restartBtn.addEventListener('click', (e) => {
             if (input1.value && input2.value) {
                 gameBoard.resetBoard();
-
                 player1 = playerFactory(input1.value, 'X');
                 player2 = playerFactory(input2.value, 'O');
                 subTitle.innerText = playerTurns().startMsg();
                 gameBoard.boardOpenClose(true);
-            } else {
-                alert('Enter player 1 & player 2 names!');
-                input1.value = 'Player X';
-                input2.value = 'Player O';
             }
-
+            // else {
+            //     alert('Enter player 1 & player 2 names!');
+            //     input1.value = 'Player X';
+            //     input2.value = 'Player O';
+            // }
         });
 
         return domDiv;
@@ -112,8 +113,7 @@ const gameBoard = (function () {
                     gameControl.gameStatus(); // Check for win / tie or turn 
                     console.log(_board);
                 } else {
-                    userInterface.updateMessage('Enter names & click Start / Restart');
-                    resetBoard();
+                    document.querySelector('body>div>form>button').click();
                 }
             });
 
@@ -125,14 +125,14 @@ const gameBoard = (function () {
     function renderBoard() { document.querySelector('body').appendChild(_buildBoard()) }
     function boardOpenClose(trueFalse) { _openBoard.splice(0, 1, trueFalse) };
     function resetBoard() {
-        if (_board.includes('O') || _board.includes('X')) {
-            _board = ['', '', '', '', '', '', '', '', '']; // Reset board
-            wrap.innerHTML = ''; // Delete all child nodes / li
-            wrap.remove(); // Remove DOM element
-            renderBoard(); // Re-insert DOM element
-        } else {
-            renderBoard();
-        }
+        // if (_board.includes('O') || _board.includes('X')) {
+        _board = ['', '', '', '', '', '', '', '', '']; // Reset board
+        wrap.innerHTML = ''; // Delete all child nodes / li
+        wrap.remove(); // Remove DOM element
+        renderBoard(); // Re-insert DOM element
+        // } else {
+        //     renderBoard();
+        // }
     }
 
     return {
@@ -195,8 +195,6 @@ const gameControl = (function () {
             }
         };
     }
-
-
 
     return {
         getData,
