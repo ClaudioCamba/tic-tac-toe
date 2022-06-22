@@ -1,19 +1,5 @@
 "use strict";
 
-// Build board game and render function using module //
-// Build control function using module approach //
-// Build players using factory function approach //
-
-// Board game render on page //
-// Player given name - in the dom
-// When player click symbol added to clicked square //
-// Symbol updated on to board game array
-// Game control checks to see if player won
-// Function to clear grids / Restart
-// Cleanup restart
-// automatically restart game when new names entered
-// 
-
 // Players ====================================================================
 const playerFactory = (name, mark) => {
     let clickedGrid = [];
@@ -26,24 +12,27 @@ const playerFactory = (name, mark) => {
     return { getName, getMark, getCount, winMsg, turnMsg, startMsg }
 };
 
-let player1, player2;
-const playerTurns = () => player1.getCount().length <= player2.getCount().length ? player1 : player2; // Controls players turn
+let playerX, playerO;
+const playerTurns = () => playerX.getCount().length <= playerO.getCount().length ? playerX : playerO; // Controls players turn
 
 const userInterface = (() => {
     const domDiv = document.createElement('div'); // Create wrapper
     const title = document.createElement('h1'); // Main title
     const subTitle = document.createElement('h3'); // Main title
     const restartBtn = document.createElement('button'); // Restart button
-    let input1 = null;
-    let input2 = null;
+    let inputX = null;
+    let inputO = null;
+    let pNames = {
+        x: '',
+        o: ''
+    }
 
     // Construct input section
     const _inputSection = () => {
-
         title.innerText = 'Tic Tac Toe';
         subTitle.innerText = 'Enter names & click Start / Restart';
         restartBtn.innerText = 'Start / Restart';
-
+        restartBtn.classList.add('startRestart');
         domDiv.appendChild(title);
         domDiv.appendChild(subTitle);
         domDiv.appendChild(restartBtn);
@@ -51,7 +40,6 @@ const userInterface = (() => {
         // Create input elements
         for (let u = 1; u < 3; u++) {
             const s = () => u === 1 ? 'X' : 'O';
-
             const label = document.createElement('label');
             const input = document.createElement('input');
             label.setAttribute('for', 'player' + s());
@@ -61,25 +49,31 @@ const userInterface = (() => {
             input.id = 'player' + s();
             label.appendChild(input);
             domDiv.appendChild(label);
-
-            u === 1 ? input1 = input : input2 = input;
+            u === 1 ? inputX = input : inputO = input;
         }
 
         // Add functionality to start button
         restartBtn.addEventListener('click', (e) => {
-            if (input1.value && input2.value) {
-                gameBoard.resetBoard();
+            if (playerX != undefined && playerO != undefined) {
+                if (playerX.getName() === pNames.x.getName() && playerX.getName() === pNames.x.getName()) {
+                    inputX.value = pNames.o.getName();
+                    inputO.value = pNames.x.getName();
+                }
+            };
 
-                player1 = playerFactory(input1.value, 'X');
-                player2 = playerFactory(input2.value, 'O');
+            if (inputX.value && inputO.value) {
+                gameBoard.resetBoard();
+                playerX = playerFactory(inputX.value, 'X');
+                playerO = playerFactory(inputO.value, 'O');
+                pNames.x = playerX;
+                pNames.o = playerO;
                 subTitle.innerText = playerTurns().startMsg();
                 gameBoard.boardOpenClose(true);
             } else {
                 alert('Enter player 1 & player 2 names!');
-                input1.value = 'Player X';
-                input2.value = 'Player O';
+                inputX.value = 'Player X';
+                inputO.value = 'Player O';
             }
-
         });
 
         return domDiv;
@@ -110,11 +104,8 @@ const gameBoard = (function () {
                     gameControl.getData(_board, e, i, _openBoard); // Send data to game controller
                     gameControl.updateBoard(); // Update game board and player
                     gameControl.gameStatus(); // Check for win / tie or turn 
-                    console.log(_board);
                 } else {
                     document.querySelector('body > div > button').click();
-                    // userInterface.updateMessage('Enter names & click Start / Restart');
-                    // resetBoard();
                 }
             });
 
@@ -126,14 +117,10 @@ const gameBoard = (function () {
     function renderBoard() { document.querySelector('body').appendChild(_buildBoard()) }
     function boardOpenClose(trueFalse) { _openBoard.splice(0, 1, trueFalse) };
     function resetBoard() {
-        // if (_board.includes('O') || _board.includes('X')) {
         _board = ['', '', '', '', '', '', '', '', '']; // Reset board
         wrap.innerHTML = ''; // Delete all child nodes / li
         wrap.remove(); // Remove DOM element
         renderBoard(); // Re-insert DOM element
-        // } else {
-        //     renderBoard();
-        // }
     }
 
     return {
@@ -197,8 +184,6 @@ const gameControl = (function () {
         };
     }
 
-
-
     return {
         getData,
         updateBoard,
@@ -207,8 +192,3 @@ const gameControl = (function () {
 })();
 
 userInterface.renderInputSection(); // Render input section
-// gameBoard.renderBoard(); // Render game board
-
-
-
-

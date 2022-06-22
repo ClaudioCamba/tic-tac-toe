@@ -170,7 +170,7 @@ h3 {
   text-align: center;
 }
 
-div > button {
+div > .startRestart {
   grid-area: 4 / 2 / 5 / 3;
 }
 
