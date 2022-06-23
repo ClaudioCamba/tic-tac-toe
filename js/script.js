@@ -1,6 +1,23 @@
 "use strict";
 
-// Players ====================================================================
+// Game Players ====================================================================
+
+const playerAI = (arr) => {
+    const array = arr;
+
+    const random = () => {
+        let slot = null;
+        while (slot === null && arr.includes('')) {
+            const ranNum = Math.floor(Math.random() * arr.length);
+            if (arr[ranNum].length === 0) {
+                slot = ranNum;
+                return slot;
+            };
+        }
+    }
+    return { random }
+}
+
 const playerFactory = (name, mark) => {
     let clickedGrid = [];
     const winMsg = () => name + ' (' + getMark() + ') wins!';
@@ -15,6 +32,7 @@ const playerFactory = (name, mark) => {
 let playerX, playerO;
 const playerTurns = () => playerX.getCount().length <= playerO.getCount().length ? playerX : playerO; // Controls players turn
 
+// Game Input & Notification ====================================================================
 const userInterface = (() => {
     const domDiv = document.createElement('div'); // Create wrapper
     const title = document.createElement('h1'); // Main title
@@ -70,9 +88,9 @@ const userInterface = (() => {
                 subTitle.innerText = playerTurns().startMsg();
                 gameBoard.boardOpenClose(true);
             } else {
-                alert('Enter player 1 & player 2 names!');
-                inputX.value = 'Player X';
-                inputO.value = 'Player O';
+                userInterface.updateMessage('Enter players X & O names!');
+                inputX.value = 'Player 1';
+                inputO.value = 'Player 2';
             }
         });
 
@@ -86,7 +104,7 @@ const userInterface = (() => {
 })();
 
 
-// Board ====================================================================
+// Game Board ====================================================================
 const gameBoard = (function () {
     let _board = ['', '', '', '', '', '', '', '', ''];
     const _openBoard = [false];
@@ -104,9 +122,16 @@ const gameBoard = (function () {
                     gameControl.getData(_board, e, i, _openBoard); // Send data to game controller
                     gameControl.updateBoard(); // Update game board and player
                     gameControl.gameStatus(); // Check for win / tie or turn 
+
                 } else {
                     document.querySelector('body > div > button').click();
                 }
+
+                // AI Player
+                if (playerTurns().getMark() === 'O' && _board.includes('') && _openBoard.includes(true)) {
+                    document.querySelectorAll('ul>li')[playerAI(_board).random()].click();
+                };
+
             });
 
             wrap.appendChild(grid);
@@ -123,14 +148,10 @@ const gameBoard = (function () {
         renderBoard(); // Re-insert DOM element
     }
 
-    return {
-        renderBoard,
-        boardOpenClose,
-        resetBoard
-    };
+    return { renderBoard, boardOpenClose, resetBoard };
 })();
 
-// Controls ====================================================================
+// Game Controls ====================================================================
 const gameControl = (function () {
 
     let _data = {
@@ -182,13 +203,17 @@ const gameControl = (function () {
                 userInterface.updateMessage(playerTurns().turnMsg());
             }
         };
+
+        // AI Player
+        // if (playerTurns().getMark() === 'O') {
+        //     document.querySelectorAll('ul>li')[playerAI(_data.board).random()];
+        // }
+
+
+
     }
 
-    return {
-        getData,
-        updateBoard,
-        gameStatus
-    };
+    return { getData, updateBoard, gameStatus };
 })();
 
 userInterface.renderInputSection(); // Render input section
