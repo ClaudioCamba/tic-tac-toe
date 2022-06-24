@@ -247,44 +247,50 @@ document.querySelector('#playerO').value = 'computer_LV1';
 document.querySelector('#playerX').value = 'Human';
 
 
-let player = {
-    clicked: [0],
-    options: [],
-}
-
-let opponent = {
+let defend = {
     clicked: [8],
     options: [],
+    score: {
+        '0': [],
+        '1': [],
+        '2': []
+    }
 }
 
-const suggestionBot = (self, opp) => {
+let attack = {
+    clicked: [0],
+    options: [],
+    score: {
+        '0': [],
+        '1': [],
+        '2': []
+    }
+}
 
-    console.log(self)
-    console.log(opp)
+// Return true / false if all numbers are within
+function multipleExist(arr, values) {
+    return values.every(value => {
+        return arr.includes(value);
+    });
+}
 
-    let testing = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-    // let hold = {
-    //     '0': [],
-    //     '1': [],
-    //     '2': [],
-    //     '3': [],
-    //     '4': [],
-    //     '5': [],
-    //     '6': [],
-    //     '7': [],
-    //     '8': []
-    // }
+const suggestionBot = (def, att) => {
+    let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 
-    for (let x = 0; x < testing.length; x++) {
-
-        for (let i = 0; i < testing[x].length; i++) {
-
+    for (let x = 0; x < winArray.length; x++) {
+        if (multipleExist(winArray[x], def.clicked)) {
+            def.options.push(winArray[x])
         }
     }
 
-    return player.options;
+    // for ()
+    // go through each matching set of array and find the missing numbers and how many, the less the higher priority to block
+
+    console.log(def.clicked);
+    console.log(def.options);
+
 };
 
-suggestionBot(player, opponent);
+suggestionBot(defend, attack);
 
 
