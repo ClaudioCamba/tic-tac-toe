@@ -243,33 +243,9 @@ const gameControl = (function () {
 
 userInterface.renderInputSection(); // Render input section
 
-document.querySelector('#playerX').value = 'computer_LV1';
-document.querySelector('#playerO').value = 'Human';
+document.querySelector('#playerO').value = 'computer_LV1';
+document.querySelector('#playerX').value = 'Human';
 
-const suggestionBot = ((self, app) => {
-    let testing = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-    let hold = {
-        '0': [],
-        '1': [],
-        '2': [],
-        '3': [],
-        '4': [],
-        '5': [],
-        '6': [],
-        '7': [],
-        '8': []
-    }
-
-    for (let x = 0; x < testing.length; x++) {
-        // console.log(testing[x])
-        for (let i = 0; i < testing[x].length; i++) {
-            console.log(testing[x][i])
-            hold[testing[x][i]].push(testing[x]);
-        }
-    }
-
-    console.log(hold);
-})();
 
 let player = {
     clicked: [0],
@@ -277,8 +253,38 @@ let player = {
 }
 
 let opponent = {
-    clicked: [0],
+    clicked: [8],
     options: [],
 }
+
+const suggestionBot = (self, opp) => {
+
+    console.log(self)
+    console.log(opp)
+
+    let testing = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    // let hold = {
+    //     '0': [],
+    //     '1': [],
+    //     '2': [],
+    //     '3': [],
+    //     '4': [],
+    //     '5': [],
+    //     '6': [],
+    //     '7': [],
+    //     '8': []
+    // }
+
+    for (let x = 0; x < testing.length; x++) {
+
+        for (let i = 0; i < testing[x].length; i++) {
+
+        }
+    }
+
+    return player.options;
+};
+
+suggestionBot(player, opponent);
 
 
