@@ -18,18 +18,23 @@ const playerAI = (arr) => {
 
 const playerFactory = (name, mark) => {
     let clickedGrid = [];
+    let storeWin = [];
+
     const turnAI = (a) => {
         if (playerTurns().getName().indexOf('computer_LV') > -1) {
             return document.querySelectorAll('ul>li')[playerAI(a)[name]()].click();
         }
     }
+    const setWin = (i) => storeWin.push(i);
+    const resetCount = () => clickedGrid = [];
     const winMsg = () => name + ' (' + getMark() + ') wins!';
     const startMsg = () => name + ' (' + getMark() + ') starts first';
     const turnMsg = () => name + ' (' + getMark() + ') its your turn';
     const getMark = () => mark;
     const getName = () => name;
     const getCount = () => clickedGrid;
-    return { getName, getMark, getCount, winMsg, turnMsg, startMsg, turnAI }
+    const getWin = () => storeWin;
+    return { getName, getMark, getCount, winMsg, turnMsg, startMsg, turnAI, resetCount, setWin, getWin }
 };
 
 let playerX, playerO;
@@ -75,21 +80,39 @@ const userInterface = (() => {
 
         // Add functionality to start button
         restartBtn.addEventListener('click', (e) => {
-            if (playerX != undefined && playerO != undefined) {
-                if (playerX.getName() === pNames.x.getName() && playerX.getName() === pNames.x.getName()) {
-                    inputX.value = pNames.o.getName();
-                    inputO.value = pNames.x.getName();
-                }
-            };
 
             if (inputX.value && inputO.value) {
+
+                // if its restart
+                if (playerX != undefined && playerO != undefined) {
+                    console.log(pNames);
+                    if (playerX.getName() === pNames.x.getName() && playerX.getName() === pNames.x.getName()) {
+                        playerX.resetCount();
+                        playerO.resetCount();
+
+                        pNames.x = Object.assign(playerX);
+                        pNames.o = Object.assign(playerO);
+
+                        // Swapping input values
+                        inputX.value = pNames.o.getName();
+                        playerX = Object.assign(pNames.o);
+                        inputO.value = pNames.x.getName();
+                        playerO = Object.assign(pNames.x);
+
+                        pNames.x = Object.assign(playerX);
+                        pNames.o = Object.assign(playerO);
+                    }
+                } else {
+                    playerX = playerFactory(inputX.value, 'X');
+                    playerO = playerFactory(inputO.value, 'O');
+                    pNames.x = Object.assign(playerX);
+                    pNames.o = Object.assign(playerO);
+                };
+                // if its new
                 gameBoard.resetBoard();
-                playerX = playerFactory(inputX.value, 'X');
-                playerO = playerFactory(inputO.value, 'O');
-                pNames.x = playerX;
-                pNames.o = playerO;
                 subTitle.innerText = playerTurns().startMsg();
                 gameBoard.boardOpenClose(true);
+
             } else {
                 userInterface.updateMessage('Enter players X & O names!');
                 inputX.value = 'Player 1';
@@ -130,8 +153,6 @@ const gameBoard = (function () {
                 } else {
                     document.querySelector('body > div > button').click();
                 }
-
-
             });
 
             wrap.appendChild(grid);
@@ -193,10 +214,18 @@ const gameControl = (function () {
 
         // Check tie / turn
         if (checkWin(_data.player.getCount()) != undefined) {
+            // Store score
+            _data.player.setWin(2);
+            playerTurns().setWin(0);
+
             userInterface.updateMessage(_data.player.winMsg());
             gameBoard.boardOpenClose(false);
         } else {
             if (_data.board.includes('') === false) {
+                // Store score
+                _data.player.setWin(1);
+                playerTurns().setWin(1);
+
                 userInterface.updateMessage('Its a draw!');
                 gameBoard.boardOpenClose(false);
             } else {
