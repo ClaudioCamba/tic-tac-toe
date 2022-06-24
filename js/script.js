@@ -150,6 +150,8 @@ const gameBoard = (function () {
                     gameControl.getData(boardS, e, i, _openBoard); // Send data to game controller
                     gameControl.updateBoard(); // Update game board and player
                     gameControl.gameStatus(); // Check for win / tie or turn 
+                    console.log(playerX.getName() + ' ' + playerX.getCount());
+                    console.log(playerO.getName() + ' ' + playerO.getCount());
                 } else {
                     document.querySelector('body > div > button').click();
                 }
@@ -243,3 +245,40 @@ userInterface.renderInputSection(); // Render input section
 
 document.querySelector('#playerX').value = 'computer_LV1';
 document.querySelector('#playerO').value = 'Human';
+
+const suggestionBot = ((self, app) => {
+    let testing = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    let hold = {
+        '0': [],
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': [],
+        '6': [],
+        '7': [],
+        '8': []
+    }
+
+    for (let x = 0; x < testing.length; x++) {
+        // console.log(testing[x])
+        for (let i = 0; i < testing[x].length; i++) {
+            console.log(testing[x][i])
+            hold[testing[x][i]].push(testing[x]);
+        }
+    }
+
+    console.log(hold);
+})();
+
+let player = {
+    clicked: [0],
+    options: [],
+}
+
+let opponent = {
+    clicked: [0],
+    options: [],
+}
+
+
