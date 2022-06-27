@@ -150,8 +150,9 @@ const gameBoard = (function () {
                     gameControl.getData(boardS, e, i, _openBoard); // Send data to game controller
                     gameControl.updateBoard(); // Update game board and player
                     gameControl.gameStatus(); // Check for win / tie or turn 
-                    console.log(playerX.getName() + ' ' + playerX.getCount());
-                    console.log(playerO.getName() + ' ' + playerO.getCount());
+                    // console.log(playerX.getName() + ' ' + playerX.getCount());
+                    // console.log(playerO.getName() + ' ' + playerO.getCount());
+                    suggestionBot(gameBoard.getBoard());
                 } else {
                     document.querySelector('body > div > button').click();
                 }
@@ -243,29 +244,9 @@ const gameControl = (function () {
 
 userInterface.renderInputSection(); // Render input section
 
-document.querySelector('#playerO').value = 'computer_LV1';
-document.querySelector('#playerX').value = 'Human';
+document.querySelector('#playerO').value = 'Human 2';
+document.querySelector('#playerX').value = 'Human 1';
 
-
-let defend = {
-    clicked: [8],
-    options: [],
-    score: {
-        '0': [],
-        '1': [],
-        '2': []
-    }
-}
-
-let attack = {
-    clicked: [0],
-    options: [],
-    score: {
-        '0': [],
-        '1': [],
-        '2': []
-    }
-}
 
 // Return true / false if all numbers are within
 function multipleExist(arr, values) {
@@ -274,23 +255,123 @@ function multipleExist(arr, values) {
     });
 }
 
-const suggestionBot = (def, att) => {
+function getOccurrence(array, value) {
+    return array.filter((v) => (v === value)).length;
+}
+
+const suggestionBot = (board) => {
     let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    // let symArray = [['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', '']];
 
+    let mySymbol = 'O';
+
+    let self = {
+        symbol: 'O',
+        op: [],
+        priority: [[], [], []]
+    };
+
+    let opponent = {
+        symbol: 'X',
+        op: [],
+        priority: [[], [], []]
+    };
+
+    let priority = [[], [], []];
+    // console.log(board);
+
+    // Update game board
     for (let x = 0; x < winArray.length; x++) {
-        if (multipleExist(winArray[x], def.clicked)) {
-            def.options.push(winArray[x])
+        for (let o = 0; o < winArray[x].length; o++) {
+            if (board[winArray[x][o]] !== '') { winArray[x][o] = board[winArray[x][o]]; }
         }
-    }
+    };
 
-    // for ()
-    // go through each matching set of array and find the missing numbers and how many, the less the higher priority to block
+    // Store options available for both players
+    for (const arr of winArray) {
+        if (arr.indexOf('O') < 0) { opponent.op.push(arr); }
+        if (arr.indexOf('X') < 0) { self.op.push(arr); }
+    };
 
-    console.log(def.clicked);
-    console.log(def.options);
+    // check if opponents options are close
+    const players = [self, opponent];
+    players.forEach((player) => {
+        for (const arr of player.op) {
 
+            for (const val of arr) {
+                if (getOccurrence(arr, player.symbol) === 2) {
+                    if (typeof val === 'number' && player.priority[0].indexOf(val) < 0) {
+                        player.priority[0].push(val);
+                    }
+                } else if (getOccurrence(arr, player.symbol) === 1) {
+                    if (typeof val === 'number' && player.priority[1].indexOf(val) < 0) {
+                        player.priority[1].push(val);
+                    }
+                }
+            }
+
+        }
+    });
+
+
+
+    // console.log(priority);
+    console.log(self)
+    console.log(opponent);
 };
 
-suggestionBot(defend, attack);
+// Update winning combination with symbols
+
+
+
+
+// let defend = {
+//     clicked: [8],
+//     options: [],
+//     score: {
+//         '0': [],
+//         '1': [],
+//         '2': []
+//     }
+// }
+
+// let attack = {
+//     clicked: [0],
+//     options: [],
+//     score: {
+//         '0': [],
+//         '1': [],
+//         '2': []
+//     }
+// }
+
+
+
+// const suggestionBot = (def, att) => {
+//     let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+
+//     for (let x = 0; x < winArray.length; x++) {
+//         if (multipleExist(winArray[x], def.clicked)) {
+//             def.options.push(winArray[x])
+//         }
+//     }
+
+//     for (let o = 0; o < def.options.length; o++) {
+//         console.log(def.options[o])
+//         for () {
+
+//         }
+//     }
+
+
+
+//     // go through each matching set of array and find the missing numbers and how many, the less the higher priority to block
+
+//     // console.log(def.clicked);
+//     // console.log(def.options);
+
+// };
+
+// suggestionBot(defend, attack);
 
 
