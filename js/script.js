@@ -9,11 +9,19 @@ const playerAI = (main_board) => {
     }
 
     let randomReturn = (array) => {
-        return array[Math.floor(Math.random() * array.length)];
+        let slot = null;
+        while (slot === null && main_board.includes('')) {
+            const ranNum = array[Math.floor(Math.random() * array.length)];
+            if (main_board[ranNum].length === 0) {
+                slot = ranNum;
+                console.log('slot ' + slot)
+                return slot;
+            };
+        }
     };
 
     const computer_LV2 = () => {
-
+        console.log('NEW ROUND');
         let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
         let self = { sym: playerTurns().getMark(), op: [], priority: [[], [], []] };
         let other = { sym: playerTurns().getMark() === 'X' ? 'O' : 'X', op: [], priority: [[], [], []] };
@@ -63,19 +71,35 @@ const playerAI = (main_board) => {
             }
         }
 
+        console.log('BEFORE CHOSEN')
+        console.log(self)
+        console.log(other);
+
         if (self.priority[0].length > 0) {
-            chosen = self.priority[0][0];
+            chosen = randomReturn(self.priority[0]);
             console.log('test1')
         } else if (other.priority[0].length > 0) {
-            chosen = other.priority[0][0];
+            chosen = randomReturn(other.priority[0]);
             console.log('test2')
         } else if (board[4] === other.sym && getOccurrence(board, other.sym) === 1) {
             chosen = randomReturn([0, 2, 6, 8]);
             console.log('test3')
-        } else if (board[0] === other.sym || board[2] === other.sym || board[6] === other.sym || board[8] === other.sym && board[4] === '' && getOccurrence(board, other.sym) === 1) {
-            console.log(board[4])
-            chosen = 4;
-            console.log('test4')
+        } else if (board[0] === other.sym || board[2] === other.sym || board[6] === other.sym || board[8] === other.sym && getOccurrence(board, other.sym) < 2) {
+            if (board[4] === other.sym || board[4] === self.sym) {
+                if (self.priority[1].length > 0) {
+                    chosen = randomReturn(self.priority[1]);
+                    console.log('test4.1')
+                } else if (self.priority[2].length > 0) {
+                    chosen = randomReturn(self.priority[2]);
+                    console.log('test4.2')
+                } else {
+                    chosen = randomReturn([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+                    console.log('test4.3')
+                }
+            } else {
+                chosen = 4;
+                console.log('test4')
+            }
         } else if (self.priority[1].length > 0) {
             chosen = randomReturn(self.priority[1]);
             console.log('test5')
@@ -87,6 +111,7 @@ const playerAI = (main_board) => {
             console.log('test7')
         }
 
+        console.log('AFTER CHOSEN')
         console.log(self)
         console.log(other);
         console.log(chosen);
@@ -111,12 +136,13 @@ const playerFactory = (name, mark) => {
     let storeWin = [];
 
     const turnAI = (a) => {
-        if (playerTurns().getName().indexOf('computer_LV') > -1) {
+        if (playerTurns().getName().indexOf('computer_LV') > -1 && gameBoard.getBoard().indexOf('') > -1) {
             return document.querySelectorAll('ul>li')[playerAI(a)[name]()].click();
         }
     }
     const setWin = (i) => storeWin.push(i);
     const resetCount = () => clickedGrid = [];
+    const resetScore = () => clickedGrid = [];
     const winMsg = () => name + ' (' + getMark() + ') wins!';
     const startMsg = () => name + ' (' + getMark() + ') starts first';
     const turnMsg = () => name + ' (' + getMark() + ') its your turn';
@@ -124,7 +150,7 @@ const playerFactory = (name, mark) => {
     const getName = () => name;
     const getCount = () => clickedGrid;
     const getWin = () => storeWin;
-    return { getName, getMark, getCount, winMsg, turnMsg, startMsg, turnAI, resetCount, setWin, getWin }
+    return { getName, getMark, getCount, winMsg, turnMsg, startMsg, turnAI, resetCount, setWin, getWin, resetScore }
 };
 
 let playerX, playerO;
@@ -168,6 +194,14 @@ const userInterface = (() => {
             u === 1 ? inputX = input : inputO = input;
         }
 
+        // Create buttons to pick human / computer
+        for (let u = 1; u < 3; u++) {
+            const s = () => u === 1 ? 'X' : 'O';
+            const div = document.createElement('div');
+            div.classList.add('player' + s());
+            domDiv.appendChild(div);
+        }
+
         // Add functionality to start button
         restartBtn.addEventListener('click', (e) => {
 
@@ -197,6 +231,8 @@ const userInterface = (() => {
                     playerO = playerFactory(inputO.value, 'O');
                     pNames.x = Object.assign(playerX);
                     pNames.o = Object.assign(playerO);
+                    playerX.resetCount();
+                    playerO.resetCount();
                 };
                 // if its new
                 gameBoard.resetBoard();
@@ -242,7 +278,7 @@ const gameBoard = (function () {
                     gameControl.gameStatus(); // Check for win / tie or turn 
                     playerTurns().turnAI(gameBoard.getBoard());
                 } else {
-                    userInterface.updateMessage('Click Start / Restart');
+                    // userInterface.updateMessage('Click Start / Restart');
                 }
             });
 
@@ -331,8 +367,8 @@ const gameControl = (function () {
 
 userInterface.renderInputSection(); // Render input section
 
-document.querySelector('#playerO').value = 'Human';
-document.querySelector('#playerX').value = 'computer_LV2';
+document.querySelector('#playerO').value = 'computer_LV2';
+document.querySelector('#playerX').value = 'Human';
 
 
 
