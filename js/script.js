@@ -2,18 +2,108 @@
 
 // Game Players ====================================================================
 
-const playerAI = (arr) => {
+const playerAI = (main_board) => {
+
+    function getOccurrence(array, value) {
+        return array.filter((v) => (v === value)).length;
+    }
+
+    let randomReturn = (array) => {
+        return array[Math.floor(Math.random() * array.length)];
+    };
+
+    const computer_LV2 = () => {
+
+        let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+        let self = { sym: playerTurns().getMark(), op: [], priority: [[], [], []] };
+        let other = { sym: playerTurns().getMark() === 'X' ? 'O' : 'X', op: [], priority: [[], [], []] };
+        let board = main_board;
+        let chosen;
+
+        // Update game board
+        for (let x = 0; x < winArray.length; x++) {
+            for (let o = 0; o < winArray[x].length; o++) {
+                if (board[winArray[x][o]] !== '') { winArray[x][o] = board[winArray[x][o]]; }
+            }
+        };
+
+        // Store options available for both players
+        for (const arr of winArray) {
+            if (arr.indexOf(self.sym) < 0) { other.op.push(arr); }
+            if (arr.indexOf(other.sym) < 0) { self.op.push(arr); }
+        };
+
+        // check if others options are close
+        const players = [self, other];
+        players.forEach((player) => {
+            for (const arr of player.op) {
+                for (const val of arr) {
+                    if (getOccurrence(arr, player.sym) === 2) {
+                        if (typeof val === 'number' && player.priority[0].indexOf(val) < 0) {
+                            player.priority[0].push(val);
+                        }
+                    } else if (getOccurrence(arr, player.sym) === 1) {
+                        if (typeof val === 'number' && player.priority[2].indexOf(val) < 0) {
+                            player.priority[2].push(val);
+                        }
+                    }
+                }
+            }
+        });
+
+        if (other.priority[2].length > 0) {
+            if (self.priority[2].length <= 0) {
+                self.priority[2] = other.priority[2]
+            } else {
+                for (const priority of self.priority[2]) {
+                    if (other.priority[2].indexOf(priority) > -1) {
+                        self.priority[1].push(priority);
+                    };
+                }
+            }
+        }
+
+        if (self.priority[0].length > 0) {
+            chosen = self.priority[0][0];
+            console.log('test1')
+        } else if (other.priority[0].length > 0) {
+            chosen = other.priority[0][0];
+            console.log('test2')
+        } else if (board[4] === other.sym && getOccurrence(board, other.sym) === 1) {
+            chosen = randomReturn([0, 2, 6, 8]);
+            console.log('test3')
+        } else if (board[0] === other.sym || board[2] === other.sym || board[6] === other.sym || board[8] === other.sym && board[4] === '' && getOccurrence(board, other.sym) === 1) {
+            console.log(board[4])
+            chosen = 4;
+            console.log('test4')
+        } else if (self.priority[1].length > 0) {
+            chosen = randomReturn(self.priority[1]);
+            console.log('test5')
+        } else if (self.priority[2].length > 0) {
+            chosen = randomReturn(self.priority[2]);
+            console.log('test6')
+        } else {
+            chosen = randomReturn([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+            console.log('test7')
+        }
+
+        console.log(self)
+        console.log(other);
+        console.log(chosen);
+        return chosen;
+    };
+
     const computer_LV1 = () => {
         let slot = null;
-        while (slot === null && arr.includes('')) {
-            const ranNum = Math.floor(Math.random() * arr.length);
-            if (arr[ranNum].length === 0) {
+        while (slot === null && main_board.includes('')) {
+            const ranNum = Math.floor(Math.random() * main_board.length);
+            if (main_board[ranNum].length === 0) {
                 slot = ranNum;
                 return slot;
             };
         }
     }
-    return { computer_LV1 }
+    return { computer_LV1, computer_LV2 }
 }
 
 const playerFactory = (name, mark) => {
@@ -150,11 +240,9 @@ const gameBoard = (function () {
                     gameControl.getData(boardS, e, i, _openBoard); // Send data to game controller
                     gameControl.updateBoard(); // Update game board and player
                     gameControl.gameStatus(); // Check for win / tie or turn 
-                    // console.log(playerX.getName() + ' ' + playerX.getCount());
-                    // console.log(playerO.getName() + ' ' + playerO.getCount());
-                    suggestionBot(gameBoard.getBoard());
+                    playerTurns().turnAI(gameBoard.getBoard());
                 } else {
-                    document.querySelector('body > div > button').click();
+                    userInterface.updateMessage('Click Start / Restart');
                 }
             });
 
@@ -233,7 +321,6 @@ const gameControl = (function () {
                 gameBoard.boardOpenClose(false);
             } else {
                 userInterface.updateMessage(playerTurns().turnMsg());
-                playerTurns().turnAI(gameBoard.getBoard());
             }
         };
 
@@ -244,81 +331,13 @@ const gameControl = (function () {
 
 userInterface.renderInputSection(); // Render input section
 
-document.querySelector('#playerO').value = 'Human 2';
-document.querySelector('#playerX').value = 'Human 1';
-
-
-// Return true / false if all numbers are within
-function multipleExist(arr, values) {
-    return values.every(value => {
-        return arr.includes(value);
-    });
-}
-
-function getOccurrence(array, value) {
-    return array.filter((v) => (v === value)).length;
-}
-
-const suggestionBot = (board) => {
-    let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-    // let symArray = [['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', '']];
-
-    let mySymbol = 'O';
-
-    let self = {
-        symbol: 'O',
-        op: [],
-        priority: [[], [], []]
-    };
-
-    let opponent = {
-        symbol: 'X',
-        op: [],
-        priority: [[], [], []]
-    };
-
-    let priority = [[], [], []];
-    // console.log(board);
-
-    // Update game board
-    for (let x = 0; x < winArray.length; x++) {
-        for (let o = 0; o < winArray[x].length; o++) {
-            if (board[winArray[x][o]] !== '') { winArray[x][o] = board[winArray[x][o]]; }
-        }
-    };
-
-    // Store options available for both players
-    for (const arr of winArray) {
-        if (arr.indexOf('O') < 0) { opponent.op.push(arr); }
-        if (arr.indexOf('X') < 0) { self.op.push(arr); }
-    };
-
-    // check if opponents options are close
-    const players = [self, opponent];
-    players.forEach((player) => {
-        for (const arr of player.op) {
-
-            for (const val of arr) {
-                if (getOccurrence(arr, player.symbol) === 2) {
-                    if (typeof val === 'number' && player.priority[0].indexOf(val) < 0) {
-                        player.priority[0].push(val);
-                    }
-                } else if (getOccurrence(arr, player.symbol) === 1) {
-                    if (typeof val === 'number' && player.priority[1].indexOf(val) < 0) {
-                        player.priority[1].push(val);
-                    }
-                }
-            }
-
-        }
-    });
+document.querySelector('#playerO').value = 'Human';
+document.querySelector('#playerX').value = 'computer_LV2';
 
 
 
-    // console.log(priority);
-    console.log(self)
-    console.log(opponent);
-};
+
+
 
 // Update winning combination with symbols
 
@@ -347,7 +366,7 @@ const suggestionBot = (board) => {
 
 
 
-// const suggestionBot = (def, att) => {
+// const computer_LV2 = (def, att) => {
 //     let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 
 //     for (let x = 0; x < winArray.length; x++) {
@@ -372,6 +391,6 @@ const suggestionBot = (board) => {
 
 // };
 
-// suggestionBot(defend, attack);
+// computer_LV2(defend, attack);
 
 
