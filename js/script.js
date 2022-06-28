@@ -4,24 +4,25 @@
 
 const playerAI = (main_board) => {
 
+    // Check value occurrence within an array
     function getOccurrence(array, value) {
         return array.filter((v) => (v === value)).length;
     }
 
+    // Random function return random value from array input
     let randomReturn = (array) => {
         let slot = null;
         while (slot === null && main_board.includes('')) {
             const ranNum = array[Math.floor(Math.random() * array.length)];
             if (main_board[ranNum].length === 0) {
                 slot = ranNum;
-                console.log('slot ' + slot)
                 return slot;
             };
         }
     };
 
+    // Level 2 Computer
     const computer_LV2 = () => {
-        console.log('NEW ROUND');
         let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
         let self = { sym: playerTurns().getMark(), op: [], priority: [[], [], []] };
         let other = { sym: playerTurns().getMark() === 'X' ? 'O' : 'X', op: [], priority: [[], [], []] };
@@ -71,53 +72,36 @@ const playerAI = (main_board) => {
             }
         }
 
-        console.log('BEFORE CHOSEN')
-        console.log(self)
-        console.log(other);
-
         if (self.priority[0].length > 0) {
             chosen = randomReturn(self.priority[0]);
-            console.log('test1')
         } else if (other.priority[0].length > 0) {
             chosen = randomReturn(other.priority[0]);
-            console.log('test2')
         } else if (board[4] === other.sym && getOccurrence(board, other.sym) === 1) {
             chosen = randomReturn([0, 2, 6, 8]);
-            console.log('test3')
         } else if (board[0] === other.sym || board[2] === other.sym || board[6] === other.sym || board[8] === other.sym && getOccurrence(board, other.sym) < 2) {
             if (board[4] === other.sym || board[4] === self.sym) {
                 if (self.priority[1].length > 0) {
                     chosen = randomReturn(self.priority[1]);
-                    console.log('test4.1')
                 } else if (self.priority[2].length > 0) {
                     chosen = randomReturn(self.priority[2]);
-                    console.log('test4.2')
                 } else {
                     chosen = randomReturn([0, 1, 2, 3, 4, 5, 6, 7, 8]);
-                    console.log('test4.3')
                 }
             } else {
                 chosen = 4;
-                console.log('test4')
             }
         } else if (self.priority[1].length > 0) {
             chosen = randomReturn(self.priority[1]);
-            console.log('test5')
         } else if (self.priority[2].length > 0) {
             chosen = randomReturn(self.priority[2]);
-            console.log('test6')
         } else {
             chosen = randomReturn([0, 1, 2, 3, 4, 5, 6, 7, 8]);
-            console.log('test7')
         }
 
-        console.log('AFTER CHOSEN')
-        console.log(self)
-        console.log(other);
-        console.log(chosen);
         return chosen;
     };
 
+    // Level 1 Computer
     const computer_LV1 = () => {
         let slot = null;
         while (slot === null && main_board.includes('')) {
@@ -131,6 +115,7 @@ const playerAI = (main_board) => {
     return { computer_LV1, computer_LV2 }
 }
 
+// Player factory function
 const playerFactory = (name, mark, color) => {
     let clickedGrid = [];
     let storeWin = [];
@@ -230,28 +215,33 @@ const userInterface = (() => {
 
         // Add functionality to start button
         restartBtn.addEventListener('click', (e) => {
+            e.target.classList.remove('focus');
 
             if (inputX.value && inputO.value) {
 
                 // if its restart
                 if (playerX !== undefined && playerO !== undefined) {
 
-                    if (playerX.getName() === pNames.x.getName() && playerX.getName() === pNames.x.getName()) {
-                        playerX.resetCount();
-                        playerO.resetCount();
+                    const check = inputX.value + inputO.value;
+
+                    if (check.indexOf(playerX.getName()) > -1 && check.indexOf(playerO.getName()) > -1) {
 
                         pNames.x = Object.assign(playerX);
                         pNames.o = Object.assign(playerO);
-
                         // Swapping input values
-                        // inputX.value = pNames.o.getName();
                         playerX = Object.assign(pNames.o);
-                        // inputO.value = pNames.x.getName();
                         playerO = Object.assign(pNames.x);
 
-                        pNames.x = Object.assign(playerX);
-                        pNames.o = Object.assign(playerO);
+                    } else {
+                        playerX = playerFactory(inputX.value, 'X', 'red');
+                        playerO = playerFactory(inputO.value, 'O', 'blue');
                     }
+
+                    playerX.resetCount();
+                    playerO.resetCount();
+                    pNames.x = Object.assign(playerX);
+                    pNames.o = Object.assign(playerO);
+
                 } else {
                     playerX = playerFactory(inputX.value, 'X', 'red');
                     playerO = playerFactory(inputO.value, 'O', 'blue');
@@ -295,6 +285,7 @@ const gameBoard = (function () {
         for (let i = 0; i < boardS.length; i++) {
             let grid = document.createElement('li');
             grid.innerText = boardS[i];
+            grid.classList.add(playerTurns().getMark());
 
             // Click eventlistner on individual grids
             grid.addEventListener('click', (e) => {
@@ -304,9 +295,18 @@ const gameBoard = (function () {
                     gameControl.gameStatus(); // Check for win / tie or turn 
                     playerTurns().turnAI(gameBoard.getBoard());
                 } else {
-                    // userInterface.updateMessage('Click Start / Restart');
+                    document.querySelector('.startRestart').classList.add('focus');
+                }
+
+                const allGrid = document.querySelectorAll('ul>li');
+                for (const grid of allGrid) {
+                    grid.classList.remove('X', 'O');
+                    grid.classList.add(playerTurns().getMark());
                 }
             });
+
+            // grid.addEventListener('mouseover', (e) => { e.target.classList.add(playerTurns().getMark()); });
+            // grid.addEventListener('mouseout', (e) => { e.target.classList.remove(playerTurns().getMark()); });
 
             wrap.appendChild(grid);
         }

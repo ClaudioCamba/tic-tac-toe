@@ -193,6 +193,10 @@ div > label {
   width: 100%;
 }
 
+.focus {
+  background-color: orange;
+}
+
 /* Grid Styling */
 ul {
   margin: 0 auto;
@@ -204,6 +208,19 @@ ul {
   gap: 1px;
   border: 1px solid #000000;
   background-color: #000000;
+}
+
+ul li.X:empty:hover::before,
+ul li.O:empty:hover::before {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+ul li.O:empty:hover::before {
+  content: "O";
+}
+
+ul li.X:empty:hover::before {
+  content: "X";
 }
 
 ul li {
