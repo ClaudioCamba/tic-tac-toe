@@ -131,9 +131,10 @@ const playerAI = (main_board) => {
     return { computer_LV1, computer_LV2 }
 }
 
-const playerFactory = (name, mark) => {
+const playerFactory = (name, mark, color) => {
     let clickedGrid = [];
     let storeWin = [];
+
 
     const turnAI = (a) => {
         if (playerTurns().getName().indexOf('computer_LV') > -1 && gameBoard.getBoard().indexOf('') > -1) {
@@ -148,9 +149,10 @@ const playerFactory = (name, mark) => {
     const turnMsg = () => name + ' (' + getMark() + ') its your turn';
     const getMark = () => mark;
     const getName = () => name;
+    const getColor = () => color;
     const getCount = () => clickedGrid;
     const getWin = () => storeWin;
-    return { getName, getMark, getCount, winMsg, turnMsg, startMsg, turnAI, resetCount, setWin, getWin, resetScore }
+    return { getName, getMark, getCount, winMsg, turnMsg, startMsg, turnAI, resetCount, setWin, getWin, resetScore, getColor }
 };
 
 let playerX, playerO;
@@ -179,27 +181,51 @@ const userInterface = (() => {
         domDiv.appendChild(subTitle);
         domDiv.appendChild(restartBtn);
 
-        // Create input elements
+
         for (let u = 1; u < 3; u++) {
+            // Create elements and options
             const s = () => u === 1 ? 'X' : 'O';
+            const playerPick = ['Human', 'computer_LV1', 'computer_LV2']
             const label = document.createElement('label');
             const input = document.createElement('input');
+            const div = document.createElement('div');
+
+            // Set class / attributes
             label.setAttribute('for', 'player' + s());
-            label.innerText = 'Player ' + s();
+            label.innerText = s();
             input.type = 'text';
             input.placeholder = 'Enter Player ' + s() + ' Name'
             input.id = 'player' + s();
-            label.appendChild(input);
-            domDiv.appendChild(label);
-            u === 1 ? inputX = input : inputO = input;
-        }
-
-        // Create buttons to pick human / computer
-        for (let u = 1; u < 3; u++) {
-            const s = () => u === 1 ? 'X' : 'O';
-            const div = document.createElement('div');
             div.classList.add('player' + s());
+
+            // Append elements to player picking wrap
+            label.appendChild(input);
+            div.appendChild(label);
             domDiv.appendChild(div);
+
+            // Player picking buttons
+            for (const player of playerPick) {
+                const btn = document.createElement('button');
+                btn.innerText = player;
+                btn.classList.add(player);
+                div.appendChild(btn);
+
+                btn.addEventListener('click', (e) => {
+                    const input = e.target.parentNode.querySelector('input');
+                    input.value = e.target.className;
+                    e.target.parentNode.classList.remove('Human', 'computer_LV1', 'computer_LV2');
+                    e.target.parentNode.classList.add(e.target.className);
+
+                    if (e.target.innerText.indexOf('computer_LV') > -1) {
+                        input.disabled = true;
+                    } else {
+                        input.disabled = false;
+                    }
+                })
+            }
+
+            u === 1 ? inputX = input : inputO = input;
+
         }
 
         // Add functionality to start button
@@ -208,8 +234,8 @@ const userInterface = (() => {
             if (inputX.value && inputO.value) {
 
                 // if its restart
-                if (playerX != undefined && playerO != undefined) {
-                    console.log(pNames);
+                if (playerX !== undefined && playerO !== undefined) {
+
                     if (playerX.getName() === pNames.x.getName() && playerX.getName() === pNames.x.getName()) {
                         playerX.resetCount();
                         playerO.resetCount();
@@ -218,17 +244,17 @@ const userInterface = (() => {
                         pNames.o = Object.assign(playerO);
 
                         // Swapping input values
-                        inputX.value = pNames.o.getName();
+                        // inputX.value = pNames.o.getName();
                         playerX = Object.assign(pNames.o);
-                        inputO.value = pNames.x.getName();
+                        // inputO.value = pNames.x.getName();
                         playerO = Object.assign(pNames.x);
 
                         pNames.x = Object.assign(playerX);
                         pNames.o = Object.assign(playerO);
                     }
                 } else {
-                    playerX = playerFactory(inputX.value, 'X');
-                    playerO = playerFactory(inputO.value, 'O');
+                    playerX = playerFactory(inputX.value, 'X', 'red');
+                    playerO = playerFactory(inputO.value, 'O', 'blue');
                     pNames.x = Object.assign(playerX);
                     pNames.o = Object.assign(playerO);
                     playerX.resetCount();
@@ -241,11 +267,11 @@ const userInterface = (() => {
 
             } else {
                 userInterface.updateMessage('Enter players X & O names!');
-                inputX.value = 'Player 1';
-                inputO.value = 'Player 2';
             }
 
-            playerTurns().turnAI(gameBoard.getBoard());
+            if (playerX !== undefined && playerO !== undefined) {
+                playerTurns().turnAI(gameBoard.getBoard());
+            }
         });
 
         return domDiv;
@@ -366,67 +392,6 @@ const gameControl = (function () {
 })();
 
 userInterface.renderInputSection(); // Render input section
-
-document.querySelector('#playerO').value = 'computer_LV2';
-document.querySelector('#playerX').value = 'Human';
-
-
-
-
-
-
-// Update winning combination with symbols
-
-
-
-
-// let defend = {
-//     clicked: [8],
-//     options: [],
-//     score: {
-//         '0': [],
-//         '1': [],
-//         '2': []
-//     }
-// }
-
-// let attack = {
-//     clicked: [0],
-//     options: [],
-//     score: {
-//         '0': [],
-//         '1': [],
-//         '2': []
-//     }
-// }
-
-
-
-// const computer_LV2 = (def, att) => {
-//     let winArray = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-
-//     for (let x = 0; x < winArray.length; x++) {
-//         if (multipleExist(winArray[x], def.clicked)) {
-//             def.options.push(winArray[x])
-//         }
-//     }
-
-//     for (let o = 0; o < def.options.length; o++) {
-//         console.log(def.options[o])
-//         for () {
-
-//         }
-//     }
-
-
-
-//     // go through each matching set of array and find the missing numbers and how many, the less the higher priority to block
-
-//     // console.log(def.clicked);
-//     // console.log(def.options);
-
-// };
-
-// computer_LV2(defend, attack);
-
-
+// Pre-select player types
+document.querySelector('.playerX > .Human').click();
+document.querySelector('.playerO > .computer_LV2').click();
